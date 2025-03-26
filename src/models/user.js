@@ -12,28 +12,54 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // User thuộc về một Position trong Allcode
       User.belongsTo(models.Allcode, {
-        foreignKey: 'positionId', // Khóa ngoại trong bảng User
-        targetKey: 'key',  // Khóa tham chiếu trong bảng Allcode
-        as: 'positionData'  //Tên alias để sử dụng trong include
+        foreignKey: 'genderCode',
+        targetKey: 'keyName',
+        as: 'genderData'
       });
-          // Add new relationship with Markdown
-    User.hasOne(models.Markdown, {
-      foreignKey: 'doctorId',
-      as: 'doctorMarkdown'
-  });
+      User.belongsTo(models.Allcode, {
+        foreignKey: 'roleCode',
+        targetKey: 'keyName',
+        as: 'roleData'
+      });
+      User.belongsTo(models.Allcode, {
+        foreignKey: 'positionCode',
+        targetKey: 'keyName',
+        as: 'positionData'
+      });
     }
   }7;
   User.init({
-    email: DataTypes.STRING,
-    password: DataTypes.STRING,
-    firstName: DataTypes.STRING,
-    lastName: DataTypes.STRING,
-    address: DataTypes.STRING,
-    phonenumber: DataTypes.STRING,
-    gender: DataTypes.STRING,
-    image: DataTypes.TEXT('long'), 
-    roleID: DataTypes.STRING,
-    positionId: DataTypes.STRING
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    email: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+      unique: true
+    },
+    password: {
+      type: DataTypes.STRING(255),
+      allowNull: false
+    },
+    firstName: {
+      type: DataTypes.STRING(100),
+      allowNull: false
+    },
+    lastName: {
+      type: DataTypes.STRING(100),
+      allowNull: false
+    },
+    address: DataTypes.TEXT,
+    phoneNumber: {
+      type: DataTypes.STRING(20),
+      unique: true
+    },
+    genderCode: DataTypes.STRING(50),
+    roleCode: DataTypes.STRING(50),
+    positionCode: DataTypes.STRING(50),
+    image: DataTypes.STRING(255)
   }, {
     sequelize,
     modelName: 'User',
