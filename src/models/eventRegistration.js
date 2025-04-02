@@ -38,6 +38,18 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false
     },
+    name: {
+      type: DataTypes.STRING(100),
+      allowNull: false
+    },
+    email: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+    },
+    phoneNumber: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+    },
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false
@@ -47,10 +59,15 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: DataTypes.NOW
     },
     statusCostCode: DataTypes.STRING(50),
-    payMethodCode: DataTypes.STRING(50)
+    payMethodCode: DataTypes.STRING(50),
+        notes: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    }
   }, {
     sequelize,
     modelName: 'EventRegistration',
+    timestamps: false
   });
   return EventRegistration;
 };

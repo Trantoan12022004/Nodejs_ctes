@@ -21,10 +21,12 @@ let handleUserLogin = (email, password) => {
                         userData.errCode = 0;
                         userData.errMessage = "ok";
                         userData.user = {
+                            id: user.id,
                             email: user.email,
                             roleId: user.roleCode,
                             firstName: user.firstName,
                             lastName: user.lastName,
+                            phoneNumber: user.phoneNumber,
                         };
                     } else {
                         userData.errCode = 3;
@@ -62,10 +64,11 @@ let checkUserEmail = (userEmail) => {
     });
 };
 
-const getAllCodes = () => {
+const getAllCodes = (typeInput) => {
     return new Promise(async (resolve, reject) => {
         try {
             const allcodes = await db.Allcode.findAll({
+                where: { type: typeInput },
                 attributes: ["keyName", "type", "valueEn", "valueVi"],
             });
 

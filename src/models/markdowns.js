@@ -5,15 +5,9 @@ module.exports = (sequelize, DataTypes) => {
   class Markdown extends Model {
     static associate(models) {
       // Define associations
-      Markdown.belongsTo(models.Allcode, {
-        foreignKey: 'positionId',
-        targetKey: 'keyName',
-        as: 'positionData'
-      });
-
-      Markdown.belongsTo(models.Allcode, {
+      Markdown.belongsTo(models.Event, {  // Thay đổi từ Allcode sang Event
         foreignKey: 'eventId',
-        targetKey: 'keyName',
+        targetKey: 'id',     // Thay đổi từ keyName sang id
         as: 'eventData'
       });
     }
@@ -25,12 +19,8 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true
     },
-    positionId: {
-      type: DataTypes.STRING(10),
-      allowNull: true
-    },
     eventId: {
-      type: DataTypes.STRING(10),
+      type: DataTypes.INTEGER,    // Thay đổi từ STRING sang INTEGER
       allowNull: true
     },
     contentHTML: {
@@ -44,11 +34,13 @@ module.exports = (sequelize, DataTypes) => {
     description: {
       type: DataTypes.TEXT,
       allowNull: true
-    }
+    },
+    image: DataTypes.STRING(255)
   }, {
     sequelize,
     modelName: 'Markdown',
-    timestamps: true // Enables createdAt and updatedAt
+    tableName: 'markdowns',    // Thêm tên bảng cụ thể
+    timestamps: true
   });
 
   return Markdown;

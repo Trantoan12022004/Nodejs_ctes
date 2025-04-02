@@ -1,5 +1,6 @@
 import db from "../models/index";
 import userServices from "../service/userServices";
+import eventServices from "../service/eventServices";
 
 let handleLogin = async (req, res) => {
     let email = req.body.email;
@@ -21,7 +22,8 @@ let handleLogin = async (req, res) => {
 
 const getAllCodes = async (req, res) => {
     try {
-        const response = await userServices.getAllCodes();
+        let type = req.query.type;
+        const response = await userServices.getAllCodes(type);
         return res.status(200).json(response);
     } catch (error) {
         console.error("Get all codes error:", error);
@@ -77,13 +79,13 @@ let updateUser = async (req, res) => {
         let message = await userServices.updateUser(data);
         return res.status(200).json(message);
     } catch (e) {
-        console.log('Error:', e);
+        console.log("Error:", e);
         return res.status(500).json({
             errCode: -1,
-            errMessage: 'Error from server'
+            errMessage: "Error from server",
         });
     }
-}
+};
 
 let deleteUser = async (req, res) => {
     try {
@@ -91,19 +93,20 @@ let deleteUser = async (req, res) => {
         if (!id) {
             return res.status(200).json({
                 errCode: 1,
-                errMessage: 'Missing required parameter!'
+                errMessage: "Missing required parameter!",
             });
         }
         let message = await userServices.deleteUser(id);
         return res.status(200).json(message);
     } catch (e) {
-        console.log('Error:', e);
+        console.log("Error:", e);
         return res.status(500).json({
             errCode: -1,
-            errMessage: 'Error from server'
+            errMessage: "Error from server",
         });
     }
-}
+};
+
 
 module.exports = {
     handleLogin: handleLogin,
@@ -111,5 +114,5 @@ module.exports = {
     createUser: createUser,
     getAllUsers: getAllUsers,
     updateUser: updateUser,
-    deleteUser: deleteUser
+    deleteUser: deleteUser,
 };
