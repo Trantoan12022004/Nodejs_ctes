@@ -10,6 +10,11 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: 'id',     // Thay đổi từ keyName sang id
         as: 'eventData'
       });
+      Markdown.belongsTo(models.User, {  // Thay đổi từ Allcode sang Event
+        foreignKey: 'userId',
+        targetKey: 'id',     // Thay đổi từ keyName sang id
+        as: 'userData'
+      });
     }
   }
 
@@ -18,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true
+    },
+    userId: {
+      type: DataTypes.INTEGER,    // Thay đổi từ STRING sang INTEGER
+      allowNull: true
     },
     eventId: {
       type: DataTypes.INTEGER,    // Thay đổi từ STRING sang INTEGER

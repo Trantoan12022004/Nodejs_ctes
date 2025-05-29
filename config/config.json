@@ -2,7 +2,7 @@
   "development": {
     "username": "root",
     "password": null,
-    "database": "toan",
+    "database": "tranvantoan",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },

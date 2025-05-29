@@ -19,7 +19,7 @@ app.use(bodyParser.urlencoded({ limit: "50mb", extended: true}));
 viewEngine(app);
 initWebRoutes(app);
 connectDB();
-let port = process.env.PORT || 2004;
+let port = process.env.PORT || 2005;
 //Port === undefined => port = 6969
 
 app.listen(port, () => {

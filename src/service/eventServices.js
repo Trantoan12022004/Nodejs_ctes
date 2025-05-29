@@ -13,7 +13,7 @@ const createEvent = (data) => {
             }
 
             // Tạo sự kiện mới
-            await db.Event.create({
+            const newEvent = await db.Event.create({
                 typeEventCode: data.typeEventCode,
                 name: data.name,
                 date: data.date,
@@ -26,6 +26,7 @@ const createEvent = (data) => {
             resolve({
                 errCode: 0,
                 errMessage: "Tạo sự kiện thành công",
+                id: newEvent.id,
             });
         } catch (error) {
             console.error("Lỗi tạo sự kiện:", error);
@@ -88,6 +89,11 @@ const getAllEvents = () => {
         try {
             const events = await db.Event.findAll({
                 include: [
+                    {
+                        model: db.Markdown,
+                        as: "eventMarkdown",
+                        attributes: ["contentHTML", "contentMarkdown", "description"],
+                    },
                     {
                         model: db.Allcode,
                         as: "eventType",
@@ -381,8 +387,10 @@ const updateEventRegistration = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
             // Kiểm tra ID đăng ký tồn tại
-            const id = data.eventId;
+            const id = data.id;
+            console.log("Update registration id:", id);
             const registration = await db.EventRegistration.findByPk(id);
+            console.log("registration:", registration);
             if (!registration) {
                 resolve({
                     errCode: 1,
@@ -399,6 +407,8 @@ const updateEventRegistration = (data) => {
                     // registeredAt: registeredAt|| new Date(),
                     statusCostCode: data.statusCostCode,
                     payMethodCode: data.payMethodCode,
+                    attendanceStatus: data.attendanceStatus || 0, // Mặc định là chưa điểm danh
+                    attendanceTime: data.attendanceTime || null, // Mặc định là null nếu chưa điểm danh
                     notes: data.notes,
                 },
                 {
@@ -451,7 +461,138 @@ const deleteEventRegistration = (registrationId) => {
         }
     });
 };
+const updateEvent = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // Kiểm tra dữ liệu bắt buộc
+            if (!data.name || !data.date || !data.address || !data.typeEventCode) {
+                resolve({
+                    errCode: 1,
+                    errMessage: "Thiếu thông tin bắt buộc",
+                });
+                return;
+            }
 
+            let eventId = data.id;
+            let event = null;
+
+            // Kiểm tra xem đây là cập nhật hay tạo mới
+            if (!eventId) {
+                // Tạo sự kiện mới
+                event = await db.Event.create({
+                    typeEventCode: data.typeEventCode,
+                    name: data.name,
+                    date: data.date,
+                    address: data.address,
+                    quantityMember: data.quantityMember ? parseInt(data.quantityMember) : 0,
+                    cost: data.cost ? parseFloat(data.cost) : 0.0,
+                    statusCode: data.statusCode || "S1",
+                });
+
+                resolve({
+                    errCode: 0,
+                    errMessage: "Tạo sự kiện thành công",
+                    data: event,
+                });
+            } else {
+                // Tìm sự kiện hiện có
+                event = await db.Event.findOne({
+                    where: { id: eventId },
+                });
+
+                if (!event) {
+                    resolve({
+                        errCode: 2,
+                        errMessage: "Không tìm thấy sự kiện",
+                    });
+                    return;
+                }
+
+                // Cập nhật sự kiện
+                await event.update({
+                    typeEventCode: data.typeEventCode,
+                    name: data.name,
+                    date: data.date,
+                    address: data.address,
+                    quantityMember: data.quantityMember ? parseInt(data.quantityMember) : 0,
+                    cost: data.cost ? parseFloat(data.cost) : 0.0,
+                    statusCode: data.statusCode || "S1",
+                });
+
+                // Xử lý markdown nếu có
+                if (data.description || data.contentMarkdown || data.contentHTML) {
+                    let existingMarkdown = await db.Markdown.findOne({
+                        where: { eventId: eventId },
+                    });
+
+                    if (existingMarkdown) {
+                        // Cập nhật markdown hiện có
+                        await existingMarkdown.update({
+                            description: data.description || existingMarkdown.description,
+                            contentMarkdown: data.contentMarkdown || existingMarkdown.contentMarkdown,
+                            contentHTML: data.contentHTML || existingMarkdown.contentHTML,
+                        });
+                    } else {
+                        // Tạo mới markdown nếu chưa có
+                        await db.Markdown.create({
+                            eventId: eventId,
+                            description: data.description || "",
+                            contentMarkdown: data.contentMarkdown || "",
+                            contentHTML: data.contentHTML || "",
+                        });
+                    }
+                }
+
+                resolve({
+                    errCode: 0,
+                    errMessage: "Cập nhật sự kiện thành công",
+                    data: event,
+                });
+            }
+        } catch (error) {
+            console.error("Lỗi xử lý sự kiện:", error);
+            reject({
+                errCode: -1,
+                errMessage: "Lỗi từ server",
+            });
+        }
+    });
+};
+
+const deleteEvent = (eventId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // Kiểm tra xem sự kiện có tồn tại không
+            const event = await db.Event.findOne({
+                where: { id: eventId },
+            });
+
+            if (!event) {
+                resolve({
+                    errCode: 1,
+                    errMessage: "Không tìm thấy sự kiện",
+                });
+                return;
+            }
+
+            // Xóa sự kiện
+            await db.Event.destroy({
+                where: { id: eventId },
+            });
+
+            resolve({
+                errCode: 0,
+                errMessage: "Xóa sự kiện thành công",
+            });
+        } catch (error) {
+            console.error("Lỗi khi xóa sự kiện:", error);
+            reject({
+                errCode: -1,
+                errMessage: "Lỗi từ server",
+            });
+        }
+    });
+};
 export default {
     createEvent: createEvent,
     createEventDescription: createEventDescription,
@@ -462,4 +603,6 @@ export default {
     getEventRegistrationsById: getEventRegistrationsById,
     updateEventRegistration: updateEventRegistration,
     deleteEventRegistration: deleteEventRegistration,
+    updateEvent: updateEvent,
+    deleteEvent: deleteEvent,
 };

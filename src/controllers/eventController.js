@@ -98,7 +98,6 @@ const getEventRegistrationsById = async (req, res) => {
                 errMessage: "Thiếu mã sự kiện",
             });
         }
-
         const response = await eventServices.getEventRegistrationsById(eventId);
         return res.status(200).json(response);
     } catch (error) {
@@ -115,7 +114,8 @@ const updateEventRegistration = async (req, res) => {
         // Lấy ID từ params và dữ liệu từ body
         // const registrationId = req.params.id;
         const data = req.body;
-
+        console.log("Update registration data:", data);
+        // const registrationId = data.id;
         if (!data.eventId) {
             return res.status(400).json({
                 errCode: 1,
@@ -156,6 +156,40 @@ const deleteEventRegistration = async (req, res) => {
         });
     }
 };
+let updateEvent = async (req, res) => {
+    try {
+        let response = await eventServices.updateEvent(req.body);
+        return res.status(200).json(response);
+    } catch (e) {
+        console.error("Error handling event update/create:", e);
+        return res.status(500).json({
+            errCode: -1,
+            errMessage: "Lỗi từ server",
+        });
+    }
+};
+let deleteEvent = async (req, res) => {
+    try {
+        let data = req.body;
+        console.log("Delete event data:", data);
+        const eventId = data.id; // Lấy ID từ URL
+        if (!eventId) {
+            return res.status(400).json({
+                errCode: 1,
+                errMessage: "Thiếu ID sự kiện",
+            });
+        }
+
+        let response = await eventServices.deleteEvent(eventId);
+        return res.status(200).json(response);
+    } catch (e) {
+        console.error("Error deleting event:", e);
+        return res.status(500).json({
+            errCode: -1,
+            errMessage: "Lỗi từ server",
+        });
+    }
+};
 
 module.exports = {
     createEvent: createEvent,
@@ -167,4 +201,6 @@ module.exports = {
     getEventRegistrationsById: getEventRegistrationsById,
     updateEventRegistration: updateEventRegistration,
     deleteEventRegistration: deleteEventRegistration,
+    updateEvent: updateEvent,
+    deleteEvent: deleteEvent,
 };

@@ -1,7 +1,6 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class HelpRequest extends Model {
     /**
@@ -10,44 +9,77 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-        HelpRequest.belongsTo(models.User, {
-          foreignKey: 'userId'
-        });
-        HelpRequest.belongsTo(models.Allcode, {
-          foreignKey: 'requestTypeCode',
-          targetKey: 'keyName',
-          as: 'requestType'
-        });
-        HelpRequest.belongsTo(models.Allcode, {
-          foreignKey: 'statusCode',
-          targetKey: 'keyName',
-          as: 'status'
-        });
-      }
-  };
+      // You can define associations if needed
+      // For example, if assigned_to refers to a user ID:
+      // HelpRequest.belongsTo(models.User, { foreignKey: 'assigned_to', as: 'assignedUser' });
+    }
+  }
+
   HelpRequest.init({
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true
     },
-    userId: {
-      type: DataTypes.INTEGER,
+    full_name: {
+      type: DataTypes.STRING(100),
       allowNull: false
     },
-    requestTypeCode: DataTypes.STRING(50),
-    description: {
+    email: {
+      type: DataTypes.STRING(100),
+      allowNull: false
+    },
+    phone: {
+      type: DataTypes.STRING(20),
+      allowNull: false
+    },
+    organization: {
+      type: DataTypes.STRING(100)
+    },
+    help_type: {
+      type: DataTypes.ENUM('academic', 'financial', 'mental', 'technical', 'facility', 'documents', 'other'),
+      allowNull: false
+    },
+    urgency_level: {
+      type: DataTypes.ENUM('low', 'medium', 'high', 'urgent'),
+      allowNull: false
+    },
+    available_time: {
+      type: DataTypes.ENUM('morning', 'afternoon', 'evening', 'anytime', 'weekend')
+    },
+    contact_method: {
+      type: DataTypes.ENUM('email', 'phone', 'messenger', 'zalo', 'meeting')
+    },
+    problem_detail: {
       type: DataTypes.TEXT,
       allowNull: false
     },
-    requestedDate: {
-      type: DataTypes.DATE,
-      allowNull: false
+    attempted_solutions: {
+      type: DataTypes.TEXT
     },
-    statusCode: DataTypes.STRING(50)
+    additional_info: {
+      type: DataTypes.TEXT
+    },
+    status: {
+      type: DataTypes.ENUM('pending', 'in_progress', 'resolved', 'closed'),
+      defaultValue: 'pending'
+    },
+    assigned_to: {
+      type: DataTypes.STRING(100)
+    }
   }, {
     sequelize,
     modelName: 'HelpRequest',
+    tableName: 'helprequests',
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
+    indexes: [
+      { fields: ['email'] },
+      { fields: ['status'] },
+      { fields: ['created_at'] }
+    ]
   });
+
   return HelpRequest;
 };

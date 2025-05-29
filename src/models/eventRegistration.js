@@ -63,6 +63,20 @@ module.exports = (sequelize, DataTypes) => {
         notes: {
         type: DataTypes.TEXT,
         allowNull: true
+    },
+
+     // Thêm các trường mới cho điểm danh
+    attendanceStatus: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: 0,
+      comment: 'Trạng thái điểm danh: 0 - Chưa điểm danh, 1 - Đã điểm danh'
+    },
+    attendanceTime: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: null,
+      comment: 'Thời gian điểm danh'
     }
   }, {
     sequelize,
